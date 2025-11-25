@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Background Remover | Pro Studio</title>
+    <title>AI Background Remover | Professional Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -19,7 +19,6 @@
                     colors: {
                         primary: '#6366f1', // Indigo 500
                         secondary: '#0f172a', // Slate 900
-                        accent: '#818cf8',
                     }
                 }
             }
@@ -27,23 +26,49 @@
     </script>
     <style>
         body { background-color: #0f172a; color: white; }
+        
+        /* Glassmorphism Effect */
         .glass-panel {
             background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        /* Text Gradient */
         .gradient-text {
             background: linear-gradient(to right, #818cf8, #c084fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        /* Checkerboard background for transparent images */
+        .bg-checkerboard {
+            background-color: #eee;
+            background-image:
+                linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc),
+                linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        /* Loading Spinner */
         .loader {
             border-top-color: #6366f1;
             -webkit-animation: spinner 1.5s linear infinite;
             animation: spinner 1.5s linear infinite;
         }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Background Blobs Animation */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-x-hidden">
@@ -53,67 +78,69 @@
 
     <main class="w-full max-w-4xl z-10">
         
-        <div class="text-center mb-10">
+        <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center p-2 bg-indigo-500/10 rounded-full mb-4 border border-indigo-500/20">
-                <span class="text-indigo-300 text-xs font-semibold px-2 tracking-wide uppercase">Powered by AI</span>
+                <span class="text-indigo-300 text-xs font-semibold px-2 tracking-wide uppercase">AI Version 2.0</span>
             </div>
             <h1 class="font-heading text-4xl md:text-5xl font-bold mb-4">
-                Hapus Background <br/> <span class="gradient-text">Secara Otomatis</span>
+                Hapus Background <br/> <span class="gradient-text">Secara Instan</span>
             </h1>
-            <p class="text-slate-400 text-lg max-w-2xl mx-auto">
-                Upload gambar kamu dan biarkan AI kami menghapus latar belakang dalam hitungan detik. Gratis dan profesional.
+            <p class="text-slate-400 text-sm md:text-base max-w-xl mx-auto">
+                Upload gambar (JPG/PNG). Sistem akan memproses otomatis di server. Hasil HD & Rapi.
             </p>
         </div>
 
         <div class="glass-panel rounded-2xl p-1 md:p-2 shadow-2xl">
-            <div class="bg-slate-900/50 rounded-xl p-6 md:p-10 border border-slate-700/50">
+            <div class="bg-slate-900/60 rounded-xl p-6 md:p-10 border border-slate-700/50">
                 
-                <div id="upload-area" class="border-2 border-dashed border-slate-600 hover:border-indigo-500 transition-colors rounded-xl p-10 flex flex-col items-center justify-center cursor-pointer group relative">
-                    <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/png, image/jpeg, image/jpg">
+                <div id="upload-area" class="border-2 border-dashed border-slate-600 hover:border-indigo-500 hover:bg-slate-800/50 transition-all rounded-xl p-10 flex flex-col items-center justify-center cursor-pointer group relative min-h-[250px]">
+                    <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" accept="image/png, image/jpeg, image/jpg">
                     
                     <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 group-hover:bg-indigo-500/20 group-hover:scale-110 transition-all duration-300">
                         <i class="bi bi-cloud-arrow-up text-3xl text-indigo-400"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-slate-200 mb-2">Upload Gambar</h3>
-                    <p class="text-slate-400 text-sm text-center">Klik atau drag & drop gambar ke sini<br>(JPG, PNG Max 5MB)</p>
+                    <h3 class="text-xl font-semibold text-slate-200 mb-2">Pilih Gambar</h3>
+                    <p class="text-slate-400 text-sm text-center">Klik area ini untuk upload<br><span class="text-xs text-slate-500">(Max 4MB)</span></p>
                 </div>
 
-                <div id="loading-state" class="hidden flex flex-col items-center justify-center py-12">
+                <div id="loading-state" class="hidden flex flex-col items-center justify-center py-12 min-h-[250px]">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-700 h-12 w-12 mb-4"></div>
-                    <p class="text-indigo-300 animate-pulse font-medium">Sedang memproses AI...</p>
-                    <p class="text-slate-500 text-xs mt-2">Mengupload & Menghapus Background</p>
+                    <p class="text-indigo-300 animate-pulse font-medium text-lg">Sedang Memproses...</p>
+                    <p id="loading-detail" class="text-slate-500 text-xs mt-2">Mengirim ke server...</p>
                 </div>
 
-                <div id="result-area" class="hidden mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <p class="text-sm font-semibold text-slate-400">Original</p>
-                        <div class="relative rounded-lg overflow-hidden border border-slate-700 bg-slate-800/50 h-64 flex items-center justify-center">
-                            <img id="img-original" class="max-h-full max-w-full object-contain" src="" alt="Original">
+                <div id="result-area" class="hidden mt-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider text-center">Original</p>
+                            <div class="relative rounded-lg overflow-hidden border border-slate-700 bg-slate-800 h-64 flex items-center justify-center">
+                                <img id="img-original" class="max-h-full max-w-full object-contain" src="" alt="Original">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <p class="text-xs font-semibold text-indigo-400 uppercase tracking-wider text-center">Hasil (Transparan)</p>
+                            <div class="relative rounded-lg overflow-hidden border border-indigo-500/30 bg-checkerboard h-64 flex items-center justify-center">
+                                <img id="img-result" class="max-h-full max-w-full object-contain z-10" src="" alt="Result">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <p class="text-sm font-semibold text-indigo-400">No Background</p>
-                        <div class="relative rounded-lg overflow-hidden border border-indigo-500/30 bg-[url('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.G352_v0p6-tX0uJ1Vp4CigHaHa%26pid%3DApi&f=1')] bg-repeat h-64 flex items-center justify-center">
-                            <img id="img-result" class="max-h-full max-w-full object-contain z-10" src="" alt="Result">
-                        </div>
+                    <div id="action-buttons" class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="resetApp()" class="px-6 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-medium transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
+                            <i class="bi bi-arrow-counterclockwise"></i> Ulangi
+                        </button>
+                        <a id="download-btn" href="#" download="removed-bg-hd.png" class="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
+                            <i class="bi bi-download"></i> Download HD
+                        </a>
                     </div>
-                </div>
-
-                <div id="action-buttons" class="hidden mt-8 flex flex-col md:flex-row gap-4 justify-center">
-                    <button onclick="resetApp()" class="px-6 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-medium transition-all flex items-center justify-center gap-2">
-                        <i class="bi bi-arrow-counterclockwise"></i> Ulangi
-                    </button>
-                    <a id="download-btn" href="#" download="removed-bg.png" class="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center gap-2">
-                        <i class="bi bi-download"></i> Download HD
-                    </a>
                 </div>
 
             </div>
         </div>
 
-        <footer class="text-center mt-10 text-slate-500 text-sm">
-            <p>&copy; 2024 AI Tools. Built for speed.</p>
+        <footer class="text-center mt-10 text-slate-500 text-xs">
+            <p>&copy; 2024 AI Tools. Serverless Architecture.</p>
         </footer>
 
     </main>
@@ -123,68 +150,74 @@
         const uploadArea = document.getElementById('upload-area');
         const loadingState = document.getElementById('loading-state');
         const resultArea = document.getElementById('result-area');
-        const actionButtons = document.getElementById('action-buttons');
         const imgOriginal = document.getElementById('img-original');
         const imgResult = document.getElementById('img-result');
         const downloadBtn = document.getElementById('download-btn');
+        const loadingDetail = document.getElementById('loading-detail');
 
-        // Ganti dengan API Key gambar sementara jika perlu, atau gunakan upload public
-        // Disini kita gunakan teknik upload ke host sementara agar dapat URL untuk API RemoveBG
-        
         fileInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
-            // 1. Show Preview & Loading
-            const reader = new FileReader();
-            reader.onload = (e) => imgOriginal.src = e.target.result;
-            reader.readAsDataURL(file);
-
-            uploadArea.classList.add('hidden');
-            loadingState.classList.remove('hidden');
-
-            try {
-                // 2. Upload Image to Temporary Host (Misal: Catbox / Telegra.ph logic)
-                // Kita gunakan 3rd party upload service karena API removebg butuh URL publik
-                const formData = new FormData();
-                formData.append('fileToUpload', file);
-                formData.append('reqtype', 'fileupload');
-
-                // Gunakan catbox.moe sebagai host sementara (Stabil untuk tools gratisan)
-                // Note: Pada real production, sebaiknya pakai serverless function untuk handle upload
-                const uploadRes = await fetch('https://catbox.moe/user/api.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!uploadRes.ok) throw new Error('Gagal upload gambar awal');
-                const uploadedUrl = await uploadRes.text(); // Catbox return raw URL text
-                
-                console.log('Uploaded to:', uploadedUrl);
-
-                // 3. Call RemoveBG API
-                const apiUrl = `https://api.ootaizumi.web.id/tools/removebg?imageUrl=${encodeURIComponent(uploadedUrl)}`;
-                
-                const processRes = await fetch(apiUrl);
-                const processJson = await processRes.json();
-
-                if (!processJson.status) throw new Error('Gagal menghapus background');
-
-                const finalImageUrl = processJson.result;
-
-                // 4. Update UI
-                imgResult.src = finalImageUrl;
-                downloadBtn.href = finalImageUrl;
-                
-                loadingState.classList.add('hidden');
-                resultArea.classList.remove('hidden');
-                actionButtons.classList.remove('hidden');
-
-            } catch (error) {
-                console.error(error);
-                alert('Terjadi kesalahan: ' + error.message);
-                resetApp();
+            // Validasi Ukuran (Max 4MB agar aman di Vercel Function)
+            if (file.size > 4 * 1024 * 1024) {
+                alert('Maaf, ukuran file terlalu besar (Max 4MB). Silakan kompres dulu.');
+                fileInput.value = ''; // Reset input
+                return;
             }
+
+            // Baca File untuk Preview
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            
+            reader.onload = async (e) => {
+                const base64String = e.target.result;
+                
+                // Tampilkan Preview Original
+                imgOriginal.src = base64String;
+
+                // Update Tampilan ke Loading
+                uploadArea.classList.add('hidden');
+                loadingState.classList.remove('hidden');
+                resultArea.classList.add('hidden');
+                loadingDetail.innerText = "Mengupload ke server...";
+
+                try {
+                    // --- REQUEST KE BACKEND SENDIRI (/api/remove) ---
+                    const response = await fetch('/api/remove', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json' 
+                        },
+                        body: JSON.stringify({ image: base64String })
+                    });
+
+                    // Cek status HTTP
+                    if (!response.ok) {
+                        throw new Error(`Server Error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.error || 'Gagal memproses gambar');
+                    }
+
+                    // --- SUKSES ---
+                    loadingDetail.innerText = "Selesai!";
+                    imgResult.src = data.result;
+                    downloadBtn.href = data.result;
+                    
+                    // Tampilkan Hasil
+                    loadingState.classList.add('hidden');
+                    resultArea.classList.remove('hidden');
+
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert('Gagal: ' + error.message + '\nCoba gambar lain atau cek koneksi.');
+                    resetApp();
+                }
+            };
         });
 
         function resetApp() {
@@ -192,7 +225,6 @@
             uploadArea.classList.remove('hidden');
             loadingState.classList.add('hidden');
             resultArea.classList.add('hidden');
-            actionButtons.classList.add('hidden');
             imgOriginal.src = '';
             imgResult.src = '';
         }
