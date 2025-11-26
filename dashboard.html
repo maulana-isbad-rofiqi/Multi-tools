@@ -140,3 +140,89 @@
 
           <div class="tool-body">
             <div class="form-card">
+              <label class="label" for="removeBgUrl">URL gambar</label>
+              <input
+                id="removeBgUrl"
+                type="url"
+                class="input"
+                placeholder="Tempel link gambar (https://...)"
+              />
+              <p class="hint">
+                Sama seperti di bot: bisa pakai link gambar langsung. (Versi reply gambar perlu backend uploader).
+              </p>
+              <button id="removeBgBtn" class="btn-primary full">
+                Hapus Background
+              </button>
+              <div id="removeBgStatus" class="status"></div>
+            </div>
+
+            <div id="removeBgResult" class="result-card hidden">
+              <div class="result-grid">
+                <div class="result-box">
+                  <div class="result-head">
+                    <span>Asli</span>
+                    <span class="tag">Before</span>
+                  </div>
+                  <img id="removeBgOriginal" alt="Gambar asli" />
+                </div>
+                <div class="result-box">
+                  <div class="result-head">
+                    <span>Tanpa background</span>
+                    <span class="tag">After</span>
+                  </div>
+                  <img id="removeBgOutput" alt="Gambar tanpa background" />
+                </div>
+              </div>
+
+              <div class="actions-row">
+                <button id="removeBgCopy" class="btn-ghost">
+                  🔗 Salin link hasil
+                </button>
+                <a id="removeBgOpen" href="#" target="_blank" rel="noopener" class="btn-ghost">
+                  ⬇️ Buka / download
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- About / Dev -->
+        <section id="tool-about" class="tool-panel">
+          <div class="tool-header">
+            <h2>ℹ️ About & Developer</h2>
+          </div>
+          <div class="tool-body about">
+            <div class="about-card">
+              <h3>Multi Tools Panel</h3>
+              <p>
+                Web dashboard ringan untuk mengakses beberapa tools gambar
+                berbasis API dari <code>https://api.ootaizumi.web.id</code>.
+              </p>
+              <ul>
+                <li>⚡ Remini Upscale – Hdiin foto blur.</li>
+                <li>🖼️ Remove Background – Hapus background jadi transparan.</li>
+                <li>🧩 Siap ditambah tools lain (cartoon, colorize, dll).</li>
+              </ul>
+            </div>
+
+            <div class="about-card">
+              <h3>Developer</h3>
+              <p class="dev-name">【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 】</p>
+              <p>
+                Script ini dibuat supaya bot / API yang kamu punya bisa dipakai
+                dengan tampilan web yang rapih dan enak dipakai di HP maupun desktop.
+              </p>
+              <p class="muted">
+                Silakan kembangkan lagi: tambah auth, limit user, halaman changelog, dll.
+              </p>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="assets/api.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</body>
+</html>
