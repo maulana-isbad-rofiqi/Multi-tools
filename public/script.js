@@ -1,4 +1,4 @@
-// Navigasi & UI Logic
+// Navigasi & UI
 const welcomeScreen = document.getElementById('welcome-screen');
 const enterBtn = document.getElementById('enter-btn');
 const dashboard = document.getElementById('dashboard');
@@ -6,7 +6,6 @@ const sidebar = document.getElementById('sidebar');
 const openSidebar = document.getElementById('open-sidebar');
 const closeSidebar = document.getElementById('close-sidebar');
 
-// Masuk Dashboard
 enterBtn.addEventListener('click', () => {
     welcomeScreen.style.opacity = '0';
     setTimeout(() => {
@@ -15,21 +14,17 @@ enterBtn.addEventListener('click', () => {
     }, 500);
 });
 
-// Sidebar Mobile
 openSidebar.addEventListener('click', () => sidebar.classList.add('active'));
 closeSidebar.addEventListener('click', () => sidebar.classList.remove('active'));
 
-// Switch Pages
 function showPage(pageId) {
     document.querySelectorAll('.page-section').forEach(sec => sec.classList.add('hidden'));
     document.getElementById(pageId).classList.remove('hidden');
     document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
-    if(window.innerWidth < 768) {
-        sidebar.classList.remove('active');
-    }
+    if(window.innerWidth < 768) sidebar.classList.remove('active');
 }
 
-// === LOGIKA REMOVE BG (FIXED) ===
+// === LOGIKA BARU DENGAN KOMPRESI ===
 const imageInput = document.getElementById('imageInput');
 const processBtn = document.getElementById('processBtn');
 const previewContainer = document.getElementById('preview-container');
@@ -40,15 +35,9 @@ const loading = document.getElementById('loading');
 
 let selectedFile = null;
 
-// Preview Gambar
 imageInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
-        // Cek ukuran file (Max 4MB agar Vercel tidak error)
-        if (file.size > 4 * 1024 * 1024) {
-            alert("Ukuran gambar terlalu besar! Maksimal 4MB.");
-            return;
-        }
         selectedFile = file;
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -59,18 +48,35 @@ imageInput.addEventListener('change', (e) => {
     }
 });
 
-// Fungsi mengubah File menjadi Base64
-const toBase64 = file => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-});
+// Fungsi Kompres Gambar (Agar lolos limit Vercel)
+const compressImage = async (file) => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                // Kecilkan resolusi jika terlalu besar (max width 1080px)
+                const scale = Math.min(1080 / img.width, 1); 
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // Ubah ke JPEG kualitas 70%
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                resolve(dataUrl);
+            }
+        }
+    });
+}
 
-// Proses Gambar
 processBtn.addEventListener('click', async () => {
     if (!selectedFile) {
-        alert("Pilih gambar dulu bos!");
+        alert("Pilih gambar dulu!");
         return;
     }
 
@@ -79,15 +85,13 @@ processBtn.addEventListener('click', async () => {
     resultArea.classList.add('hidden');
 
     try {
-        // 1. Ubah gambar jadi text Base64
-        const base64Image = await toBase64(selectedFile);
+        // 1. Kompres dulu sebelum kirim
+        const base64Image = await compressImage(selectedFile);
 
-        // 2. Kirim ke API Vercel kita (menggunakan POST)
+        // 2. Kirim ke Backend
         const res = await fetch('/api/removebg', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: base64Image })
         });
 
@@ -98,12 +102,11 @@ processBtn.addEventListener('click', async () => {
             downloadBtn.href = data.result;
             resultArea.classList.remove('hidden');
         } else {
-            throw new Error(data.error || "Gagal memproses gambar.");
+            throw new Error(data.error || "Gagal memproses.");
         }
 
     } catch (error) {
-        alert("Terjadi kesalahan: " + error.message);
-        console.error(error);
+        alert("Gagal: " + error.message);
     } finally {
         loading.classList.add('hidden');
         processBtn.disabled = false;
