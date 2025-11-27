@@ -3,85 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Multi Tools Panel | Welcome</title>
+  <title>Multi Tools Panel | Loading</title>
   <link rel="stylesheet" href="assets/style.css" />
+  <script>
+    // Baca mode & tema dari localStorage biar splash sesuai
+    (function () {
+      try {
+        const mode = localStorage.getItem("mt_mode") || "dark";
+        if (mode === "light") {
+          document.documentElement.classList.remove("mode-dark");
+          document.body?.classList?.add("mode-light");
+        }
+      } catch {}
+    })();
+  </script>
 </head>
 <body class="mode-dark">
   <div class="bg-glow"></div>
 
-  <main class="shell">
-    <header class="top-bar">
-      <div class="brand">
-        <div class="brand-logo">
-          <span>MT</span>
-        </div>
-        <div class="brand-text">
-          <h1>Multi Tools Panel</h1>
-          <p>Remini + RemoveBG dalam satu dashboard.</p>
-        </div>
+  <main class="splash">
+    <div class="splash-card">
+      <div class="brand-logo big">
+        <span>MT</span>
       </div>
+      <h1>Multi Tools Panel</h1>
+      <p>Loading dashboard untuk Remini &amp; RemoveBG...</p>
 
-      <button id="modeToggleFront" class="btn-ghost-icon" aria-label="Toggle mode">
-        🌙
+      <div class="loader"></div>
+
+      <p class="splash-dev">Developer: <strong>【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 】</strong></p>
+
+      <button class="btn-ghost small" onclick="location.href='dashboard.html'">
+        Masuk sekarang
       </button>
-    </header>
-
-    <section class="welcome-card">
-      <div class="welcome-main">
-        <h2>Selamat datang 👋</h2>
-        <p class="welcome-sub">
-          Panel web untuk <strong>Hdiin foto blur (Remini)</strong> dan
-          <strong>hapus background (RemoveBG)</strong> pakai API milikmu.
-        </p>
-
-        <div class="theme-picker">
-          <p class="label">Pilih tema utama:</p>
-          <div class="theme-options">
-            <label class="theme-pill">
-              <input type="radio" name="theme" value="blue" checked />
-              <span class="theme-color theme-blue"></span>
-              <span>Blue Neon</span>
-            </label>
-            <label class="theme-pill">
-              <input type="radio" name="theme" value="purple" />
-              <span class="theme-color theme-purple"></span>
-              <span>Purple Futuristic</span>
-            </label>
-            <label class="theme-pill">
-              <input type="radio" name="theme" value="minimal" />
-              <span class="theme-color theme-minimal"></span>
-              <span>Minimal Dark</span>
-            </label>
-          </div>
-        </div>
-
-        <a href="dashboard.html" class="btn-primary main-cta">
-          Masuk Dashboard
-        </a>
-      </div>
-
-      <div class="welcome-side">
-        <div class="mini-card">
-          <p class="mini-title">Developer</p>
-          <p class="mini-dev">【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 】</p>
-          <p class="mini-muted">Custom web client untuk API ootaizumi.</p>
-        </div>
-        <div class="mini-card">
-          <p class="mini-title">Tools aktif</p>
-          <ul class="mini-list">
-            <li>⚡ Remini Upscale</li>
-            <li>🖼️ Remove Background</li>
-            <li>🧩 Siap tambah tools lain</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <footer class="footer">
-      <span>Powered by <code>https://api.ootaizumi.web.id</code></span>
-    </footer>
+    </div>
   </main>
 
-  <script src="assets/app.js" defer></script>
+  <script>
+    // Auto pindah ke dashboard tanpa harus klik
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 1500);
+  </script>
 </body>
 </html>
