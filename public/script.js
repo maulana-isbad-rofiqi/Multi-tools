@@ -21,19 +21,15 @@ closeSidebar.addEventListener('click', () => sidebar.classList.remove('active'))
 
 // Switch Pages
 function showPage(pageId) {
-    // Sembunyikan semua section
     document.querySelectorAll('.page-section').forEach(sec => sec.classList.add('hidden'));
-    // Tampilkan yang dipilih
     document.getElementById(pageId).classList.remove('hidden');
-    // Update active state menu
     document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
-    // Jika mobile, tutup sidebar setelah klik
     if(window.innerWidth < 768) {
         sidebar.classList.remove('active');
     }
 }
 
-// === LOGIKA REMOVE BG ===
+// === LOGIKA REMOVE BG (FIXED) ===
 const imageInput = document.getElementById('imageInput');
 const processBtn = document.getElementById('processBtn');
 const previewContainer = document.getElementById('preview-container');
@@ -44,10 +40,15 @@ const loading = document.getElementById('loading');
 
 let selectedFile = null;
 
-// Preview Gambar saat dipilih
+// Preview Gambar
 imageInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
+        // Cek ukuran file (Max 4MB agar Vercel tidak error)
+        if (file.size > 4 * 1024 * 1024) {
+            alert("Ukuran gambar terlalu besar! Maksimal 4MB.");
+            return;
+        }
         selectedFile = file;
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -58,26 +59,13 @@ imageInput.addEventListener('change', (e) => {
     }
 });
 
-// Helper: Upload File ke Host Sementara (Karena API butuh URL, bukan File)
-// Kita gunakan catbox.moe atau host gratis lainnya yang mendukung upload tanpa key ribet
-async function uploadToTemporaryHost(file) {
-    const formData = new FormData();
-    formData.append('fileToUpload', file);
-    formData.append('reqtype', 'fileupload');
-
-    // Menggunakan Catbox.moe sebagai perantara (public upload)
-    try {
-        const response = await fetch('https://catbox.moe/user/api.php', {
-            method: 'POST',
-            body: formData
-        });
-        const url = await response.text();
-        return url;
-    } catch (e) {
-        console.error("Gagal upload temp:", e);
-        return null;
-    }
-}
+// Fungsi mengubah File menjadi Base64
+const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+});
 
 // Proses Gambar
 processBtn.addEventListener('click', async () => {
@@ -91,14 +79,18 @@ processBtn.addEventListener('click', async () => {
     resultArea.classList.add('hidden');
 
     try {
-        // 1. Upload gambar lokal ke temporary host agar dapat URL
-        const tempUrl = await uploadToTemporaryHost(selectedFile);
-        
-        if (!tempUrl) throw new Error("Gagal mengupload gambar ke server sementara.");
+        // 1. Ubah gambar jadi text Base64
+        const base64Image = await toBase64(selectedFile);
 
-        // 2. Kirim URL ke API Vercel kita
-        const apiUrl = `/api/removebg?imageUrl=${encodeURIComponent(tempUrl)}`;
-        const res = await fetch(apiUrl);
+        // 2. Kirim ke API Vercel kita (menggunakan POST)
+        const res = await fetch('/api/removebg', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image: base64Image })
+        });
+
         const data = await res.json();
 
         if (data.success && data.result) {
@@ -106,11 +98,12 @@ processBtn.addEventListener('click', async () => {
             downloadBtn.href = data.result;
             resultArea.classList.remove('hidden');
         } else {
-            alert("Gagal memproses gambar: " + (data.error || "Unknown error"));
+            throw new Error(data.error || "Gagal memproses gambar.");
         }
 
     } catch (error) {
         alert("Terjadi kesalahan: " + error.message);
+        console.error(error);
     } finally {
         loading.classList.add('hidden');
         processBtn.disabled = false;
