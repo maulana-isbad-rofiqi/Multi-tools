@@ -9,6 +9,23 @@
 <body class="mode-dark">
   <div class="bg-glow"></div>
 
+  <!-- Welcome loading overlay -->
+  <div id="welcomeOverlay" class="welcome-overlay">
+    <div class="welcome-inner">
+      <div class="brand-logo big">
+        <span>MT</span>
+      </div>
+      <h1 data-i18n="welcome_title">Multi Tools Panel</h1>
+      <p data-i18n="welcome_subtitle">
+        Menyiapkan dashboard Remini &amp; RemoveBG untukmu...
+      </p>
+      <div class="loader"></div>
+      <p class="splash-dev">
+        Developer: <strong>【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 】</strong>
+      </p>
+    </div>
+  </div>
+
   <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
@@ -17,25 +34,28 @@
           <span>MT</span>
         </div>
         <div class="sidebar-title">
-          <h2>Multi Tools</h2>
+          <h2 data-i18n="sidebar_title">Multi Tools</h2>
           <p>Developer: <strong>【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 】</strong></p>
         </div>
       </div>
 
       <nav class="nav">
         <button class="nav-item active" data-target="tool-upscale">
-          🔺 Remini Upscale
+          ⚡ <span data-i18n="nav_upscale">Remini Upscale</span>
         </button>
         <button class="nav-item" data-target="tool-removebg">
-          🖼️ Remove Background
+          🖼️ <span data-i18n="nav_removebg">Remove Background</span>
+        </button>
+        <button class="nav-item" data-target="tool-settings">
+          ⚙️ <span data-i18n="nav_settings">Pengaturan</span>
         </button>
         <button class="nav-item" data-target="tool-about">
-          ℹ️ About & Developer
+          ℹ️ <span data-i18n="nav_about">About &amp; Developer</span>
         </button>
       </nav>
 
       <div class="sidebar-footer">
-        <p class="label">Tema</p>
+        <p class="label" data-i18n="sidebar_theme_label">Tema cepat</p>
         <div class="theme-options column">
           <label class="theme-pill">
             <input type="radio" name="themeDash" value="blue" checked />
@@ -63,14 +83,16 @@
           ☰
         </button>
         <div class="main-title">
-          <h1>Dashboard Tools</h1>
-          <p>Kelola gambar via Remini & RemoveBG.</p>
+          <h1 data-i18n="dashboard_title">Dashboard Tools</h1>
+          <p data-i18n="dashboard_subtitle">
+            Kelola gambar via Remini &amp; RemoveBG.
+          </p>
         </div>
         <div class="main-actions">
           <button id="modeToggleDash" class="btn-ghost-icon" aria-label="Toggle mode">
             🌙
           </button>
-          <a href="index.html" class="btn-ghost small">← Home</a>
+          <a href="index.html" class="btn-ghost small">Splash</a>
         </div>
       </header>
 
@@ -78,24 +100,43 @@
         <!-- Remini / Upscale -->
         <section id="tool-upscale" class="tool-panel active">
           <div class="tool-header">
-            <h2>⚡ Remini Upscale</h2>
-            <p>Hdiin foto blur pakai API upscale.</p>
+            <h2 data-i18n="tool_upscale_title">⚡ Remini Upscale</h2>
+            <p data-i18n="tool_upscale_desc">
+              Hdiin foto blur jadi tajam, langsung dari device kamu.
+            </p>
           </div>
 
           <div class="tool-body">
             <div class="form-card">
-              <label class="label" for="upscaleUrl">URL gambar</label>
+              <label class="label" for="upscaleFile" data-i18n="label_select_image">
+                Pilih gambar dari perangkat
+              </label>
               <input
-                id="upscaleUrl"
-                type="url"
-                class="input"
-                placeholder="Tempel link gambar (https://...)"
+                id="upscaleFile"
+                type="file"
+                class="input-file"
+                accept="image/*"
               />
-              <p class="hint">
-                Gunakan link gambar langsung. Kalau perlu upload dulu ke image host lalu pakai link-nya.
+              <p class="hint" data-i18n="hint_file_only">
+                Format disarankan: JPG atau PNG. Gambar tidak disimpan di web,
+                hanya diteruskan ke API.
               </p>
+
+              <!-- Optional: juga boleh pakai URL jika mau -->
+              <details class="url-details">
+                <summary data-i18n="summary_optional_url">
+                  Opsi lanjutan: pakai URL gambar
+                </summary>
+                <input
+                  id="upscaleUrl"
+                  type="url"
+                  class="input"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </details>
+
               <button id="upscaleBtn" class="btn-primary full">
-                Proses Remini HD
+                <span data-i18n="btn_upscale">Proses Remini HD</span>
               </button>
               <div id="upscaleStatus" class="status"></div>
             </div>
@@ -104,27 +145,35 @@
               <div class="result-grid">
                 <div class="result-box">
                   <div class="result-head">
-                    <span>Asli</span>
-                    <span class="tag">Before</span>
+                    <span data-i18n="result_original">Asli</span>
+                    <span class="tag" data-i18n="tag_before">Before</span>
                   </div>
                   <img id="upscaleOriginal" alt="Gambar asli" />
                 </div>
                 <div class="result-box">
                   <div class="result-head">
-                    <span>Hasil HD</span>
-                    <span class="tag">After</span>
+                    <span data-i18n="result_hd">Hasil HD</span>
+                    <span class="tag" data-i18n="tag_after">After</span>
                   </div>
                   <img id="upscaleOutput" alt="Gambar hasil upscale" />
-                  <p class="meta"><strong>Size:</strong> <span id="upscaleSize">-</span></p>
+                  <p class="meta">
+                    <strong>Size:</strong> <span id="upscaleSize">-</span>
+                  </p>
                 </div>
               </div>
 
               <div class="actions-row">
                 <button id="upscaleCopy" class="btn-ghost">
-                  🔗 Salin link hasil
+                  🔗 <span data-i18n="btn_copy_link">Salin link hasil</span>
                 </button>
-                <a id="upscaleOpen" href="#" target="_blank" rel="noopener" class="btn-ghost">
-                  ⬇️ Buka / download
+                <a
+                  id="upscaleOpen"
+                  href="#"
+                  target="_blank"
+                  rel="noopener"
+                  class="btn-ghost"
+                >
+                  ⬇️ <span data-i18n="btn_open_download">Buka / download</span>
                 </a>
               </div>
             </div>
@@ -134,24 +183,42 @@
         <!-- RemoveBG -->
         <section id="tool-removebg" class="tool-panel">
           <div class="tool-header">
-            <h2>🖼️ Remove Background</h2>
-            <p>Hapus background gambar jadi transparan.</p>
+            <h2 data-i18n="tool_removebg_title">🖼️ Remove Background</h2>
+            <p data-i18n="tool_removebg_desc">
+              Hapus background gambar jadi transparan.
+            </p>
           </div>
 
           <div class="tool-body">
             <div class="form-card">
-              <label class="label" for="removeBgUrl">URL gambar</label>
+              <label class="label" for="removeBgFile" data-i18n="label_select_image">
+                Pilih gambar dari perangkat
+              </label>
               <input
-                id="removeBgUrl"
-                type="url"
-                class="input"
-                placeholder="Tempel link gambar (https://...)"
+                id="removeBgFile"
+                type="file"
+                class="input-file"
+                accept="image/*"
               />
-              <p class="hint">
-                Sama seperti di bot: bisa pakai link gambar langsung. (Versi reply gambar perlu backend uploader).
+              <p class="hint" data-i18n="hint_file_only">
+                Format disarankan: JPG atau PNG. Gambar tidak disimpan di web,
+                hanya diteruskan ke API.
               </p>
+
+              <details class="url-details">
+                <summary data-i18n="summary_optional_url">
+                  Opsi lanjutan: pakai URL gambar
+                </summary>
+                <input
+                  id="removeBgUrl"
+                  type="url"
+                  class="input"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </details>
+
               <button id="removeBgBtn" class="btn-primary full">
-                Hapus Background
+                <span data-i18n="btn_removebg">Hapus Background</span>
               </button>
               <div id="removeBgStatus" class="status"></div>
             </div>
@@ -160,15 +227,15 @@
               <div class="result-grid">
                 <div class="result-box">
                   <div class="result-head">
-                    <span>Asli</span>
-                    <span class="tag">Before</span>
+                    <span data-i18n="result_original">Asli</span>
+                    <span class="tag" data-i18n="tag_before">Before</span>
                   </div>
                   <img id="removeBgOriginal" alt="Gambar asli" />
                 </div>
                 <div class="result-box">
                   <div class="result-head">
-                    <span>Tanpa background</span>
-                    <span class="tag">After</span>
+                    <span data-i18n="result_nobg">Tanpa background</span>
+                    <span class="tag" data-i18n="tag_after">After</span>
                   </div>
                   <img id="removeBgOutput" alt="Gambar tanpa background" />
                 </div>
@@ -176,12 +243,83 @@
 
               <div class="actions-row">
                 <button id="removeBgCopy" class="btn-ghost">
-                  🔗 Salin link hasil
+                  🔗 <span data-i18n="btn_copy_link">Salin link hasil</span>
                 </button>
-                <a id="removeBgOpen" href="#" target="_blank" rel="noopener" class="btn-ghost">
-                  ⬇️ Buka / download
+                <a
+                  id="removeBgOpen"
+                  href="#"
+                  target="_blank"
+                  rel="noopener"
+                  class="btn-ghost"
+                >
+                  ⬇️ <span data-i18n="btn_open_download">Buka / download</span>
                 </a>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Pengaturan -->
+        <section id="tool-settings" class="tool-panel">
+          <div class="tool-header">
+            <h2 data-i18n="settings_title">⚙️ Pengaturan</h2>
+            <p data-i18n="settings_desc">
+              Atur bahasa, tema, dan preferensi tampilan.
+            </p>
+          </div>
+
+          <div class="tool-body about">
+            <div class="about-card">
+              <label class="label" for="languageSelect" data-i18n="settings_language_label">
+                Bahasa / Language
+              </label>
+              <select id="languageSelect" class="input">
+                <option value="id">Indonesia</option>
+                <option value="en">English</option>
+                <option value="ja">日本語</option>
+                <option value="ar">العربية</option>
+                <option value="ko">한국어</option>
+              </select>
+              <p class="hint" data-i18n="settings_language_hint">
+                Hanya teks utama yang berubah bahasa, konten lain tetap bisa
+                campuran.
+              </p>
+            </div>
+
+            <div class="about-card">
+              <p class="label" data-i18n="settings_theme_label">Tema utama</p>
+              <div class="theme-options">
+                <label class="theme-pill">
+                  <input type="radio" name="themeSettings" value="blue" />
+                  <span class="theme-color theme-blue"></span>
+                  <span>Blue Neon</span>
+                </label>
+                <label class="theme-pill">
+                  <input type="radio" name="themeSettings" value="purple" />
+                  <span class="theme-color theme-purple"></span>
+                  <span>Purple Futuristic</span>
+                </label>
+                <label class="theme-pill">
+                  <input type="radio" name="themeSettings" value="minimal" />
+                  <span class="theme-color theme-minimal"></span>
+                  <span>Minimal Dark</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="about-card">
+              <p class="label" data-i18n="settings_other_label">Pengaturan lainnya</p>
+              <label class="toggle">
+                <input type="checkbox" id="compactToggle" />
+                <span data-i18n="settings_compact">Mode tampilan ringkas</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="animationToggle" checked />
+                <span data-i18n="settings_animations">Aktifkan animasi ringan</span>
+              </label>
+              <p class="hint" data-i18n="settings_note">
+                Beberapa pengaturan ini hanya kosmetik (UI), tidak mempengaruhi proses API.
+              </p>
             </div>
           </div>
         </section>
@@ -189,31 +327,38 @@
         <!-- About / Dev -->
         <section id="tool-about" class="tool-panel">
           <div class="tool-header">
-            <h2>ℹ️ About & Developer</h2>
+            <h2 data-i18n="about_title">ℹ️ About &amp; Developer</h2>
           </div>
           <div class="tool-body about">
             <div class="about-card">
-              <h3>Multi Tools Panel</h3>
-              <p>
+              <h3 data-i18n="about_app_title">Multi Tools Panel</h3>
+              <p data-i18n="about_app_desc">
                 Web dashboard ringan untuk mengakses beberapa tools gambar
                 berbasis API dari <code>https://api.ootaizumi.web.id</code>.
               </p>
               <ul>
-                <li>⚡ Remini Upscale – Hdiin foto blur.</li>
-                <li>🖼️ Remove Background – Hapus background jadi transparan.</li>
-                <li>🧩 Siap ditambah tools lain (cartoon, colorize, dll).</li>
+                <li data-i18n="about_item_upscale">
+                  ⚡ Remini Upscale – Hdiin foto blur.
+                </li>
+                <li data-i18n="about_item_removebg">
+                  🖼️ Remove Background – Hapus background jadi transparan.
+                </li>
+                <li data-i18n="about_item_future">
+                  🧩 Siap ditambah tools lain (cartoon, colorize, dll).
+                </li>
               </ul>
             </div>
 
             <div class="about-card">
-              <h3>Developer</h3>
+              <h3 data-i18n="about_dev_title">Developer</h3>
               <p class="dev-name">【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 】</p>
-              <p>
+              <p data-i18n="about_dev_desc">
                 Script ini dibuat supaya bot / API yang kamu punya bisa dipakai
                 dengan tampilan web yang rapih dan enak dipakai di HP maupun desktop.
               </p>
-              <p class="muted">
-                Silakan kembangkan lagi: tambah auth, limit user, halaman changelog, dll.
+              <p class="muted" data-i18n="about_dev_hint">
+                Silakan kembangkan lagi: tambah auth, limit user, halaman
+                changelog, dll.
               </p>
             </div>
           </div>
@@ -225,4 +370,4 @@
   <script src="assets/api.js" defer></script>
   <script src="assets/app.js" defer></script>
 </body>
-</html>
+                  </html>
