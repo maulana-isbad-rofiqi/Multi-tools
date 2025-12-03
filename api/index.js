@@ -5,6 +5,7 @@ const cheerio = require('cheerio');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const FormData = require('form-data');
+const path = require('path');
 const app = express();
 
 // Middleware
@@ -12,9 +13,9 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Root endpoint
+// Root endpoint - serve frontend
 app.get('/', (req, res) => {
-  res.json({ message: 'Multi Tools Dashboard API', status: 'running' });
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // ==================== TIKTOK DOWNLOADER ====================
@@ -38,7 +39,8 @@ async function tiktokDl(url) {
     const response = await axios.get(`https://savetik.app/api/ajaxSearch?q=${encodeURIComponent(encryptedUrl)}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
+      },
+      timeout: 30000
     });
     
     if (response.data.status) {
@@ -91,13 +93,7 @@ app.post('/api/spotify', async (req, res) => {
       throw new Error('Failed to get download URL');
     }
 
-    // Fetch audio as buffer
-    const audioRes = await axios.get(downloadRes.data.downloadUrl, {
-      responseType: 'arraybuffer',
-      timeout: 60000
-    });
-
-    const base64Audio = Buffer.from(audioRes.data).toString('base64');
+    // Return download URL instead of base64 to avoid timeout
     res.json({
       success: true,
       data: {
@@ -105,7 +101,7 @@ app.post('/api/spotify', async (req, res) => {
         artist: detailRes.data.artist,
         duration: detailRes.data.duration,
         cover: detailRes.data.cover,
-        audio: `data:audio/mpeg;base64,${base64Audio}`
+        downloadUrl: downloadRes.data.downloadUrl
       }
     });
   } catch (error) {
@@ -435,7 +431,15 @@ app.post('/api/youtube', async (req, res) => {
 });
 
 // ==================== STATIC FILES ====================
-app.use(express.static('public'));
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Fallback to index.html for client-side routing
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api/')) {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+  }
+});
 
 // ==================== ERROR HANDLER ====================
 app.use((err, req, res, next) => {
