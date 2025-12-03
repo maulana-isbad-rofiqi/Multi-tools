@@ -3,104 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi Tools - Itsbad</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <title>Multi Tools Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+        }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar */
+        .sidebar { width: 250px; background: #020617; padding: 20px; display: flex; flex-direction: column; border-right: 1px solid #334155; }
+        .logo { font-size: 24px; font-weight: bold; color: var(--primary); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .nav-item { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; transition: 0.3s; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .nav-item:hover, .nav-item.active { background: var(--primary); color: white; }
+        .credit { margin-top: auto; font-size: 12px; color: #64748b; text-align: center; }
+
+        /* Main Content */
+        .main { flex: 1; padding: 30px; overflow-y: auto; position: relative; }
+        .header { margin-bottom: 30px; }
+        .header h1 { margin: 0; font-size: 28px; }
+        .header p { color: #94a3b8; margin-top: 5px; }
+
+        /* Cards & Inputs */
+        .tool-container { display: none; animation: fadeIn 0.3s ease; }
+        .tool-container.active { display: block; }
+        
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 15px; border-radius: 10px; border: 1px solid #334155; background: var(--card); color: white; outline: none; }
+        button { padding: 15px 30px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
+        button:disabled { background: #475569; cursor: not-allowed; }
+
+        /* Results */
+        .result-card { background: var(--card); border-radius: 15px; padding: 20px; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center; }
+        .result-card img { max-width: 100%; border-radius: 10px; margin-bottom: 15px; max-height: 300px; object-fit: cover; }
+        .video-wrapper { width: 100%; max-width: 500px; margin: 0 auto; }
+        .video-wrapper video { width: 100%; border-radius: 10px; }
+        
+        /* Anime Grid */
+        .anime-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .anime-card { background: var(--card); border-radius: 10px; overflow: hidden; transition: transform 0.2s; }
+        .anime-card:hover { transform: translateY(-5px); }
+        .anime-card img { width: 100%; height: 220px; object-fit: cover; }
+        .anime-info { padding: 10px; font-size: 14px; }
+        .anime-score { color: #fbbf24; font-weight: bold; font-size: 12px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; padding: 10px; flex-direction: row; overflow-x: auto; height: 70px; align-items: center; }
+            .logo { display: none; }
+            .credit { display: none; }
+            .nav-item { white-space: nowrap; }
+        }
+    </style>
 </head>
 <body>
 
-    <div id="welcome-screen">
-        <div class="welcome-content">
-            <h1>WELCOME TO</h1>
-            <h2 class="glitch" data-text="MULTI TOOLS">MULTI TOOLS</h2>
-            <p>Developer by 【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 】</p>
-            <button id="enter-btn">MASUK DASHBOARD</button>
+    <div class="sidebar">
+        <div class="logo"><i class="fas fa-layer-group"></i> MultiTools</div>
+        <div class="nav-item active" onclick="switchTab('tiktok')"><i class="fab fa-tiktok"></i> TikTok</div>
+        <div class="nav-item" onclick="switchTab('spotify')"><i class="fab fa-spotify"></i> Spotify</div>
+        <div class="nav-item" onclick="switchTab('terabox')"><i class="fas fa-hdd"></i> Terabox</div>
+        <div class="nav-item" onclick="switchTab('ai')"><i class="fas fa-robot"></i> AI Image</div>
+        <div class="nav-item" onclick="switchTab('tts')"><i class="fas fa-microphone-lines"></i> TTS</div>
+        <div class="nav-item" onclick="switchTab('anime')"><i class="fas fa-film"></i> Anime</div>
+        <div class="credit">Created by 【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 】</div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h1 id="header-title">TikTok Downloader</h1>
+            <p>Professional Tool Suite</p>
+        </div>
+
+        <div id="tiktok" class="tool-container active">
+            <div class="input-group">
+                <input type="text" id="tt-url" placeholder="Paste TikTok URL here...">
+                <button onclick="fetchDownload('tiktok')">Download</button>
+            </div>
+            <div id="tt-result"></div>
+        </div>
+
+        <div id="spotify" class="tool-container">
+            <div class="input-group">
+                <input type="text" id="sp-url" placeholder="Paste Spotify Track URL...">
+                <button onclick="fetchDownload('spotify')">Get MP3</button>
+            </div>
+            <div id="sp-result"></div>
+        </div>
+
+        <div id="terabox" class="tool-container">
+            <div class="input-group">
+                <input type="text" id="tb-url" placeholder="Paste Terabox URL...">
+                <button onclick="fetchDownload('terabox')">Get Info</button>
+            </div>
+            <div id="tb-result"></div>
+        </div>
+
+        <div id="ai" class="tool-container">
+            <div class="input-group">
+                <input type="text" id="ai-prompt" placeholder="Describe the image (e.g., Cyberpunk cat)...">
+                <button onclick="fetchAI('image')">Generate</button>
+            </div>
+            <div id="ai-result"></div>
+        </div>
+
+        <div id="tts" class="tool-container">
+            <div class="input-group">
+                <input type="text" id="tts-text" placeholder="Text to speech...">
+                <button onclick="fetchAI('tts')">Speak</button>
+            </div>
+            <div id="tts-result"></div>
+        </div>
+
+        <div id="anime" class="tool-container">
+            <div class="input-group">
+                <input type="text" id="anime-q" placeholder="Search Anime (e.g., Naruto)...">
+                <button onclick="searchAnime()">Search</button>
+            </div>
+            <div id="anime-result" class="anime-grid"></div>
         </div>
     </div>
 
-    <div class="dashboard-container hidden" id="dashboard">
-        
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h3>【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 】</h3>
-                <i class="ri-close-line" id="close-sidebar"></i>
-            </div>
-            <ul class="nav-links">
-                <li class="active" onclick="showPage('home')"><i class="ri-home-4-line"></i> Home / Tools</li>
-                <li onclick="showPage('about')"><i class="ri-information-line"></i> About</li>
-                <li onclick="showPage('developer')"><i class="ri-code-s-slash-line"></i> Developer</li>
-            </ul>
-            <div class="sidebar-footer">
-                <p>v1.0.0 Beta</p>
-            </div>
-        </aside>
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tool-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            const titles = {
+                'tiktok': 'TikTok Downloader', 'spotify': 'Spotify Converter', 'terabox': 'Terabox Link',
+                'ai': 'AI Image Gen', 'tts': 'ElevenLabs TTS', 'anime': 'Kurama Anime Search'
+            };
+            document.getElementById('header-title').innerText = titles[tab];
+        }
 
-        <main class="main-content">
-            <header>
-                <i class="ri-menu-2-line" id="open-sidebar"></i>
-                <h2>Dashboard</h2>
-            </header>
+        async function fetchDownload(type) {
+            const ids = { 'tiktok': 'tt-url', 'spotify': 'sp-url', 'terabox': 'tb-url' };
+            const resIds = { 'tiktok': 'tt-result', 'spotify': 'sp-result', 'terabox': 'tb-result' };
+            const input = document.getElementById(ids[type]).value;
+            const resDiv = document.getElementById(resIds[type]);
+            
+            if(!input) return alert('Input required');
+            resDiv.innerHTML = '<div class="result-card">Loading... <i class="fas fa-spinner fa-spin"></i></div>';
 
-            <section id="home" class="page-section">
-                <div class="tool-card">
-                    <div class="card-header">
-                        <i class="ri-magic-line"></i>
-                        <h3>Remove Background</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Hapus background gambar otomatis menggunakan AI.</p>
-                        
-                        <div class="upload-area">
-                            <input type="file" id="imageInput" accept="image/*">
-                            <label for="imageInput" class="upload-label">
-                                <i class="ri-upload-cloud-2-line"></i>
-                                <span>Pilih Gambar</span>
-                            </label>
-                            <div id="preview-container"></div>
-                        </div>
+            try {
+                const req = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, url: input })
+                });
+                const res = await req.json();
 
-                        <button id="processBtn" class="btn-primary">Hapus Background</button>
-                        
-                        <div id="result-area" class="hidden">
-                            <h4>Hasil:</h4>
-                            <img id="resultImage" src="" alt="Result">
-                            <a id="downloadBtn" href="#" download="removebg-itsbad.png" class="btn-secondary">Download</a>
-                        </div>
-                        <div id="loading" class="hidden">
-                            <div class="spinner"></div>
-                            <p>Sedang memproses...</p>
-                        </div>
+                if (!res.success) throw new Error(res.error || 'Failed');
+                
+                let html = '';
+                if(type === 'tiktok') {
+                    html = `
+                        <div class="result-card">
+                            <h3>@${res.data.author}</h3>
+                            <div class="video-wrapper">
+                                <video controls src="${res.data.video}"></video>
+                            </div>
+                            <br>
+                            <a href="${res.data.audio}" target="_blank"><button>Download Audio</button></a>
+                        </div>`;
+                } else if(type === 'spotify') {
+                    html = `
+                        <div class="result-card">
+                            <img src="${res.data.cover}" width="200">
+                            <h3>${res.data.title}</h3>
+                            <p>${res.data.artist}</p>
+                            <audio controls src="data:audio/mp3;base64,${res.data.audioBase64}"></audio>
+                        </div>`;
+                } else if(type === 'terabox') {
+                    html = `<div class="result-card"><pre>${JSON.stringify(res.data, null, 2)}</pre></div>`;
+                }
+                resDiv.innerHTML = html;
+
+            } catch (e) {
+                resDiv.innerHTML = `<div class="result-card" style="color:red">Error: ${e.message}</div>`;
+            }
+        }
+
+        async function fetchAI(type) {
+            const ids = { 'image': 'ai-prompt', 'tts': 'tts-text' };
+            const resIds = { 'image': 'ai-result', 'tts': 'tts-result' };
+            const input = document.getElementById(ids[type]).value;
+            const resDiv = document.getElementById(resIds[type]);
+
+            resDiv.innerHTML = '<div class="result-card">Generating... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const req = await fetch('/api/ai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, prompt: input })
+                });
+                const res = await req.json();
+
+                if(type === 'image') {
+                    resDiv.innerHTML = `<div class="result-card"><img src="${res.url}"><br><a href="${res.url}" target="_blank"><button>Download</button></a></div>`;
+                } else {
+                    // ElevenLabs usually returns complex audio data structure, verify output format in real scenario
+                    resDiv.innerHTML = `<div class="result-card"><p>Audio Generated</p><audio controls src="${res.audio.audioUrl || ''}"></audio></div>`;
+                }
+            } catch (e) {
+                resDiv.innerHTML = `<div class="result-card" style="color:red">Error: ${e.message}</div>`;
+            }
+        }
+
+        async function searchAnime() {
+            const q = document.getElementById('anime-q').value;
+            const div = document.getElementById('anime-result');
+            div.innerHTML = 'Loading...';
+
+            const req = await fetch(`/api/anime?query=${encodeURIComponent(q)}`);
+            const res = await req.json();
+
+            div.innerHTML = res.data.map(a => `
+                <div class="anime-card" onclick="window.open('${a.url}', '_blank')">
+                    <img src="${a.img}">
+                    <div class="anime-info">
+                        <div class="anime-score">★ ${a.score}</div>
+                        <div>${a.title}</div>
                     </div>
                 </div>
-            </section>
-
-            <section id="about" class="page-section hidden">
-                <div class="info-card">
-                    <h3>Tentang Multi Tools</h3>
-                    <p>Website ini dibuat sebagai kumpulan alat bantu digital sederhana. Fitur utama saat ini adalah penghapus latar belakang gambar otomatis.</p>
-                    <hr>
-                    <p>Source API: Ootaizumi & Custom Backend</p>
-                </div>
-            </section>
-
-            <section id="developer" class="page-section hidden">
-                <div class="dev-card">
-                    <div class="dev-avatar">
-                        <i class="ri-user-star-line"></i>
-                    </div>
-                    <h2>【﻿ 𝕀𝕥𝕤𝕓𝕒𝕕 】</h2>
-                    <p>Full Stack Developer & Bot Creator</p>
-                    <div class="socials">
-                        <a href="#"><i class="ri-github-fill"></i></a>
-                        <a href="#"><i class="ri-whatsapp-fill"></i></a>
-                        <a href="#"><i class="ri-instagram-fill"></i></a>
-                    </div>
-                </div>
-            </section>
-
-        </main>
-    </div>
-
-    <script src="script.js"></script>
+            `).join('');
+        }
+    </script>
 </body>
 </html>
