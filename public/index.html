@@ -779,23 +779,23 @@
                 
                 const data = await response.json();
                 
-                if (data.success) {
-                    results.innerHTML = `
-                        <div class="result-card">
-                            <h4>✅ Spotify Track Ready</h4>
-                            <p><strong>${data.data.title}</strong> by ${data.data.artist}</p>
-                            <p><strong>Duration:</strong> ${Math.floor(data.data.duration / 60)}:${(data.data.duration % 60).toString().padStart(2, '0')}</p>
-                            <div class="media-container">
-                                <audio controls>
-                                    <source src="${data.data.audio}" type="audio/mpeg">
-                                    Your browser does not support the audio element.
-                                </audio>
-                            </div>
-                            <a href="${data.data.audio}" class="btn" download="${data.data.title}.mp3" style="margin-top: 10px;">Download MP3</a>
-                        </div>
-                    `;
-                    results.classList.add('active');
-                } else {
+                // Di dalam function downloadSpotify() setelah get data:
+if (data.success) {
+  results.innerHTML = `
+    <div class="result-card">
+      <h4>✅ Spotify Track Ready</h4>
+      <p><strong>${data.data.title}</strong> by ${data.data.artist}</p>
+      <p><strong>Duration:</strong> ${Math.floor(data.data.duration / 60)}:${(data.data.duration % 60).toString().padStart(2, '0')}</p>
+      ${data.data.cover ? `<img src="${data.data.cover}" alt="Cover" style="max-width: 200px; border-radius: 10px; margin: 10px 0;">` : ''}
+      <a href="${data.data.downloadUrl}" class="btn" download="${data.data.title}.mp3" style="margin-top: 10px;">Download MP3</a>
+      <audio controls style="margin-top: 15px; width: 100%;">
+        <source src="${data.data.downloadUrl}" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  `;
+  results.classList.add('active');
+} else {
                     throw new Error(data.error || 'Download failed');
                 }
             } catch (error) {
