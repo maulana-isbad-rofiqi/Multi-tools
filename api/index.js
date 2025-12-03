@@ -9,8 +9,8 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -71,7 +71,9 @@ app.post('/api/spotify', async (req, res) => {
     if (!url) return res.status(400).json({ error: 'URL is required' });
 
     // Get song details
-    const detailRes = await axios.post('https://spotdown.org/api/song-details', { url });
+    const detailRes = await axios.post('https://spotdown.org/api/song-details', { url }, {
+      timeout: 30000
+    });
     
     if (!detailRes.data.success) {
       throw new Error('Failed to get song details');
@@ -81,6 +83,8 @@ app.post('/api/spotify', async (req, res) => {
     const downloadRes = await axios.post('https://spotdown.org/api/download', {
       id: detailRes.data.id,
       quality: '320'
+    }, {
+      timeout: 30000
     });
 
     if (!downloadRes.data.success) {
@@ -89,7 +93,8 @@ app.post('/api/spotify', async (req, res) => {
 
     // Fetch audio as buffer
     const audioRes = await axios.get(downloadRes.data.downloadUrl, {
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
+      timeout: 60000
     });
 
     const base64Audio = Buffer.from(audioRes.data).toString('base64');
@@ -124,7 +129,8 @@ class Kurama {
   async search(query) {
     try {
       const response = await axios.get(`${this.baseUrl}/search?q=${encodeURIComponent(query)}`, {
-        headers: this.headers
+        headers: this.headers,
+        timeout: 30000
       });
       
       const $ = cheerio.load(response.data);
@@ -150,7 +156,10 @@ class Kurama {
 
   async detail(url) {
     try {
-      const response = await axios.get(url, { headers: this.headers });
+      const response = await axios.get(url, { 
+        headers: this.headers,
+        timeout: 30000
+      });
       const $ = cheerio.load(response.data);
       
       const title = $('.entry-title').text().trim();
@@ -217,6 +226,8 @@ class ElevenLabs {
       const response = await axios.post(`${this.baseUrl}/user`, {
         email: `user${Date.now()}@temp.com`,
         password: 'temp123'
+      }, {
+        timeout: 30000
       });
       
       this.apiKey = response.data.api_key;
@@ -245,7 +256,8 @@ class ElevenLabs {
           'xi-api-key': this.apiKey,
           'Content-Type': 'application/json'
         },
-        responseType: 'arraybuffer'
+        responseType: 'arraybuffer',
+        timeout: 60000
       });
 
       const base64Audio = Buffer.from(response.data).toString('base64');
@@ -264,6 +276,11 @@ app.post('/api/tts', async (req, res) => {
     const { text, voice } = req.body;
     if (!text) return res.status(400).json({ error: 'Text is required' });
     
+    // Limit text length for serverless
+    if (text.length > 1000) {
+      return res.status(400).json({ error: 'Text too long. Maximum 1000 characters.' });
+    }
+    
     const audio = await elevenLabs.generate(text, voice);
     res.json({ success: true, data: { audio } });
   } catch (error) {
@@ -278,7 +295,9 @@ app.post('/api/ai-image', async (req, res) => {
     if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
 
     // First get the page to obtain wpnonce
-    const pageRes = await axios.get('https://unrestrictedaiimagegenerator.com/');
+    const pageRes = await axios.get('https://unrestrictedaiimagegenerator.com/', {
+      timeout: 30000
+    });
     const $ = cheerio.load(pageRes.data);
     const wpnonce = $('#wpnonce').val();
 
@@ -287,15 +306,16 @@ app.post('/api/ai-image', async (req, res) => {
     }
 
     // Submit the prompt
-    const generateRes = await axios.post('https://unrestrictedaiimagegenerator.com/wp-admin/admin-ajax.php', {
+    const generateRes = await axios.post('https://unrestrictedaiimagegenerator.com/wp-admin/admin-ajax.php', new URLSearchParams({
       action: 'generate_image',
       prompt: prompt,
       wpnonce: wpnonce
-    }, {
+    }), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
+      },
+      timeout: 60000
     });
 
     if (generateRes.data.success) {
@@ -328,7 +348,9 @@ app.post('/api/terabox', async (req, res) => {
     }
 
     const surl = surlMatch[1];
-    const infoRes = await axios.get(`https://tera2.sylyt93.workers.dev/info?surl=${surl}`);
+    const infoRes = await axios.get(`https://tera2.sylyt93.workers.dev/info?surl=${surl}`, {
+      timeout: 30000
+    });
 
     if (infoRes.data.ok) {
       res.json({
@@ -364,7 +386,8 @@ class YTDL {
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+        },
+        timeout: 30000
       });
 
       return response.data;
@@ -420,13 +443,5 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-// ==================== START SERVER ====================
-const PORT = process.env.PORT || 3000;
-
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
-
+// ==================== EXPORT FOR VERCEL ====================
 module.exports = app;
